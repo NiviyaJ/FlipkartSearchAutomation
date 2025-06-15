@@ -25,7 +25,46 @@ public class TestCases {
      * TODO: Write your tests here with testng @Test annotation. 
      * Follow `testCase01` `testCase02`... format or what is provided in instructions
      */
+    @Test
+    public void testCase01() throws InterruptedException{
+        Wrappers.navigateToUrl(driver, "http://www.flipkart.com/");
+        Wrappers.searchProduct(driver, "Washing Machine");
+        
+        //sort by popularity
+        By popularityBy = By.xpath("//div[contains(@class,'zg') and text()='Popularity']");
+        Wrappers.clickElement(driver, popularityBy);
 
+        //get count products with rating <=4
+        By ratingBy = By.xpath("//span[contains(@class,'HWO')]/div[@class='XQDdHH']");
+        Wrappers.getCountOfProductsByRating(driver, ratingBy);
+        Thread.sleep(3000);
+    }
+
+    @Test
+    public void testCase02() throws InterruptedException{
+        Wrappers.navigateToUrl(driver, "http://www.flipkart.com/");
+        Wrappers.searchProduct(driver, "iPhone");
+        
+        //get count products with rating <=4
+        By productListBy = By.className("yKfJKb");
+        Wrappers.getListOfTitleAndDiscount(driver, productListBy);
+        // Thread.sleep(3000);
+    }
+
+    @Test
+    public void testCase03() throws InterruptedException{
+        Wrappers.navigateToUrl(driver, "http://www.flipkart.com/");
+        Wrappers.searchProduct(driver, "Coffee Mug");
+        
+        //filter with rating 4* and above
+        By filterBy = By.xpath("//div[contains(@class,'qKy') and text()='4★ & above']");
+        Wrappers.clickElement(driver, filterBy);
+        Thread.sleep(2000);
+        By productListBy = By.xpath("//div[contains(@class,'slAVV')]");
+        //or //div[contains(@class,'afFzxY')]//parent::div[contains(@class,'slAVV')] --> to get list of products with reviews
+        Wrappers.getListOfProductWithHighReviews(driver, productListBy);
+        Thread.sleep(3000);
+    }
      
     /*
      * Do not change the provided methods unless necessary, they will help in automation and assessment
