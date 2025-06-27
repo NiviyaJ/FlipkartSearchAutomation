@@ -138,16 +138,8 @@ public class Wrappers {
                 String reviewText = reviewElement.getText().replaceAll("[^\\d]", "");
                 int reviewNumber = Integer.parseInt(reviewText);
                 productReviewListMap.put(index++, reviewNumber);
-                // productReviewListItem.add(index++);
-                // productReviewListItem.add(reviewNumber);
-                // productReviewList.add(productReviewListItem);
 
             }
-            // for (Map.Entry<Integer, Integer> en : productReviewListMap.entrySet()) {
-            // System.out.println("Key = " + en.getKey()
-            // + ", Value = "
-            // + en.getValue());
-            // }
 
             // sort hasmap in descending order of reviews
             Map<Integer, Integer> productReviewListSortedMap = sortReviewList(productReviewListMap);
