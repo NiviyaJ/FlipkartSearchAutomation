@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,7 +36,10 @@ public class Wrappers {
 
     public static void searchProduct(WebDriver driver, String text) {
         try {
+            // fetch the search box web element
             WebElement searchBox = driver.findElement(By.name("q"));
+            // clear and send text to search
+            searchBox.clear();
             searchBox.sendKeys(text);
             searchBox.sendKeys(Keys.ENTER);
         } catch (Exception e) {
@@ -46,10 +51,13 @@ public class Wrappers {
 
     public static void clickElement(WebDriver driver, By locatedBy) {
         try {
+            // scroll to the element before clicking
             JavascriptExecutor js = (JavascriptExecutor) driver;
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
             wait.until(ExpectedConditions.presenceOfElementLocated(locatedBy));
+            // locate the element to click
             WebElement elementToClick = driver.findElement(locatedBy);
+            // use javascript to click on the element
             js.executeScript("arguments[0].click()", elementToClick);
         } catch (Exception e) {
             // TODO: handle exception
@@ -57,44 +65,53 @@ public class Wrappers {
         }
     }
 
-    // can we create a method just to fetch all the products in a list and then use
-    // this to get internal elements for different uses?
-    public static void getCountOfProductsByRating(WebDriver driver, By locatedBy) {
+    public static void getCountOfProductsByRating(WebDriver driver, By locatedBy, double rating) {
+        // pass rating as parameter
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
             wait.until(ExpectedConditions.presenceOfElementLocated(locatedBy));
+            // get the list of all products rating
             List<WebElement> productRatingList = driver.findElements(locatedBy);
+            // initialize count to zero, to count no. of products with the rating less than
+            // or equal to given rating
             int count = 0;
+            // loop through the rating list and compare
             for (WebElement productRating : productRatingList) {
-                double rating = Double.parseDouble(productRating.getText());
-                if (rating <= 4.0) {
+                double currentRating = Double.parseDouble(productRating.getText());
+                if (currentRating <= rating) {
                     count++;
                 }
             }
-            System.out.println("Product count with rating <= 4: " + count);
+            // print the total count
+            System.out.println("Product count with rating <= " + rating + ": " + count);
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println("exception: " + e.getMessage());
         }
     }
 
-    // to print we could create a method that accepts List of List and prints
-    // everything
-    public static void getListOfTitleAndDiscount(WebDriver driver, By locatedBy) {
+    /*
+     * update this method to incorporate fetching title and product from the
+     * discount element
+     */
+    public static void getListOfTitleAndDiscount(WebDriver driver, By locatedBy, int discount) {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
             wait.until(ExpectedConditions.presenceOfElementLocated(locatedBy));
+            // get list of products with discount
             List<WebElement> allProductList = driver.findElements(locatedBy);
 
+            // loop through the list of products, and filter discount greater than the given
+            // discount value
             for (WebElement product : allProductList) {
                 WebElement discountTxtElement = product.findElement(By.className("UkUFwK"));
                 String discountTxt = discountTxtElement.getText();
-                int endIndex = discountTxt.indexOf("%");
-                int discount = Integer.parseInt(discountTxt.substring(0, endIndex));
+                // fetching the integer part of the discount text using replace all
+                int curr_discount = Integer.parseInt(discountTxt.replaceAll("[^\\d]", ""));
 
-                if (discount > 17) {
+                if (curr_discount > discount) {
                     WebElement titleElement = product.findElement(By.className("KzDlHZ"));
-                    System.out.println("Title: " + titleElement.getText() + ", Discount: " + discount);
+                    System.out.println("Title: " + titleElement.getText() + ", Discount: " + curr_discount);
                 }
 
             }
@@ -113,30 +130,43 @@ public class Wrappers {
             // to get img -> .//img[contains(@class,'DByuf')]
             // to get title -> .//a[@class='wjcEIp']
             // to get the number of reviews -> .//div[contains(@class,'afFzxY')]
-            List<List<Integer>> productReviewList = new ArrayList<>();
+            HashMap<Integer, Integer> productReviewListMap = new HashMap<>();
             int index = 0;
             for (WebElement product : allProductList) {
-                List<Integer> productReviewListItem = new ArrayList<>();
+                // List<Integer> productReviewListItem = new ArrayList<>();
                 WebElement reviewElement = product.findElement(By.xpath(".//span[contains(@class,'Wphh')]"));
                 String reviewText = reviewElement.getText().replaceAll("[^\\d]", "");
                 int reviewNumber = Integer.parseInt(reviewText);
-                productReviewListItem.add(index++);
-                productReviewListItem.add(reviewNumber);
-                productReviewList.add(productReviewListItem);
-            }
+                productReviewListMap.put(index++, reviewNumber);
+                // productReviewListItem.add(index++);
+                // productReviewListItem.add(reviewNumber);
+                // productReviewList.add(productReviewListItem);
 
-            // sort list in descending order of reviews
-            List<List<Integer>> productReviewListSorted = sortReviewList(productReviewList);
-            // get index from sorted review list, fetch the product in allproductlist, and
+            }
+            // for (Map.Entry<Integer, Integer> en : productReviewListMap.entrySet()) {
+            // System.out.println("Key = " + en.getKey()
+            // + ", Value = "
+            // + en.getValue());
+            // }
+
+            // sort hasmap in descending order of reviews
+            Map<Integer, Integer> productReviewListSortedMap = sortReviewList(productReviewListMap);
+            // get index from sorted review map, fetch the product in allproductlist using
+            // the index obtained, and
             // print title and img url
             System.out.println("Title and image URL of the 5 items with highest number of reviews:- ");
-            for (List<Integer> l : productReviewListSorted) {
-                int productIndex = l.get(0);
+            for (Map.Entry<Integer, Integer> entry : productReviewListSortedMap.entrySet()) {
+                // get product index from hashmap using get key
+                int productIndex = entry.getKey();
+                // fetch the product from allProductList using productIndex
                 WebElement product = allProductList.get(productIndex);
+                // using product webelement as parent, fetch Title and print
                 WebElement productTitleElement = product.findElement(By.xpath(".//a[@class='wjcEIp']"));
-                System.out.println("Title: " + productTitleElement.getAttribute("title"));
+                System.out
+                        .println("Title: " + productTitleElement.getAttribute("title") + "(" + entry.getValue() + ")");
+                // using product webelement as parent, fetch img and print src
                 WebElement productImgElement = product.findElement(By.xpath(".//img[contains(@class,'DByuf')]"));
-                System.out.println("Image url: " + productImgElement.getAttribute("src")+"\n");
+                System.out.println("Image url: " + productImgElement.getAttribute("src") + "\n");
             }
 
         } catch (Exception e) {
@@ -145,27 +175,19 @@ public class Wrappers {
         }
     }
 
-    // creating a comparator class
-    static class listDescendingComparator implements Comparator<List<Integer>> {
-        public int compare(List<Integer> l1, List<Integer> l2) {
-            if (l1.get(1) == l2.get(1)) {
-                return 0;
-            } else if (l1.get(1) < l2.get(1)) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-    }
+    public static Map<Integer, Integer> sortReviewList(HashMap<Integer, Integer> hm) {
 
-    public static List<List<Integer>> sortReviewList(List<List<Integer>> list) {
+        // Create a list from elements of HashMap
+        List<Map.Entry<Integer, Integer>> list = new LinkedList<>(hm.entrySet());
 
-        Collections.sort(list, new listDescendingComparator());
-        List<List<Integer>> sortedList = new ArrayList<>();
+        Collections.sort(list,
+                Collections.reverseOrder((l1, l2) -> l1.getValue().compareTo(l2.getValue())));
+        Map<Integer, Integer> sortedList = new LinkedHashMap<>();
 
         // return top 5 reviewed products
-        for (List<Integer> l : list) {
-            sortedList.add(l);
+        for (Map.Entry<Integer, Integer> entry : list) {
+            // System.err.println(l.get(0)+", "+l.get(1));
+            sortedList.put(entry.getKey(), entry.getValue());
             if (sortedList.size() == 5) {
                 break;
             }
