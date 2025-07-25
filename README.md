@@ -45,28 +45,6 @@ This suite is designed for web UI testing using **Selenium WebDriver**, written 
 
 ---
 
-## 📦 Installation
-
-Follow these steps to set up the project locally:
-
-### 1. Clone the Repository
-
-git clone https://github.com/NiviyaJ/FlipkartSearchAutomation.git
-
-Navigate to the project folder -
-
-cd FlipkartSearchAutomation
-
-### 2. Install Dependencies
-
-Ensure **Java (JDK 11 or higher)** and **Gradle** are installed, then run:
-
-gradle clean build
-
-This will download all required dependencies and compile the test classes.
-
----
-
 ## 🌐 System Requirements
 
 - Java 11 or later
@@ -78,20 +56,47 @@ This will download all required dependencies and compile the test classes.
 
 ---
 
+## 📦 Installation
+
+Follow these steps to set up the project locally:
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/NiviyaJ/FlipkartSearchAutomation.git
+cd FlipkartSearchAutomation
+```
+
+### 2. Install Dependencies
+
+Ensure **Java (JDK 11 or higher)** and **Gradle** are installed, then run:
+
+```bash
+gradle clean build
+```
+
+This will download all required dependencies and compile the test classes.
+
+---
+
 ## 🚀 Running the Tests
 
 To execute all tests using Gradle, run:
-
+```bash
 ./gradlew test
+```
 
 🛠️ Make Gradle Executable (Linux/macOS)
 
+```bash
 chmod +x gradlew
 ./gradlew test
+```
 
 🪟 Windows
 
+```bash
 gradlew.bat test
+```
 
 You can also run specific test classes using your IDE or with TestNG configurations if implemented.
 
